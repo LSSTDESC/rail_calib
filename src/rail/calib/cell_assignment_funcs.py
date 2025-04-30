@@ -38,8 +38,7 @@ def get_max_p_integral_cells(data: qp.Ensemble, cell_grid: np.ndarray) -> np.nda
     -------
     cell assignments
     """
-
     cdfs = data.cdf(cell_grid)
-    cell_pdf_integrals = cdfs[1:] - cdfs[0:-1]
+    cell_pdf_integrals = cdfs[:,1:] - cdfs[:,0:-1]
     cells = np.squeeze(np.argmax(cell_pdf_integrals, axis=1))
     return cells

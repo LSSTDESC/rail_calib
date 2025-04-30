@@ -12,6 +12,7 @@ from ceci.config import StageParameter as Param
 
 from rail.core.model import Model
 from rail.core.data import DataHandle, TableLike, Hdf5Handle, ModelHandle
+from rail.core.common_params import SHARED_PARAMS
 from rail.estimation.informer import PzInformer
 from rail.estimation.estimator import PzEstimator
 from .cell_assignment_funcs import get_mode_cells, get_max_p_integral_cells
@@ -25,10 +26,13 @@ class CellAssignmentPzInformer(PzInformer):
     name = "CellAssignmentPzInformer"
     config_options = PzInformer.config_options.copy()
     config_options.update(
+        chunk_size=SHARED_PARAMS,
+        hdf5_groupname=SHARED_PARAMS,
+        redshift_col=SHARED_PARAMS,
         zmin=Param(float, 0.0, msg="Minimum redshift of the sample"),
         zmax=Param(float, 3.0, msg="Maximum redshift of the sample"),
-        nzbins=Param(float, 3.0, msg="Number of z bins to use in the histogram"),
-        ncells=Param(int, 300, msg="Number of cells"),
+        nzbins=Param(int, 300, msg="Number of z bins to use in the histogram"),
+        ncells=Param(int, 50, msg="Number of cells"),
     )
 
     outputs = [("model", ModelHandle), ('assignment', Hdf5Handle)]
@@ -48,7 +52,7 @@ class CellAssignmentPzInformer(PzInformer):
         self.z_grid = np.linspace(
             self.config.zmin, self.config.zmax, self.config.nzbins + 1
         )
-        self.single_hist = np.zeros((self.config.ncells, self.config.nzbins))
+        self.single_hist = np.zeros((self.config.ncells+1, self.config.nzbins+1))
 
     def _finalize_run(self) -> None:
         assert self._assignment_handle is not None
@@ -90,7 +94,7 @@ class CellAssignmentPzInformer(PzInformer):
         true_bins = np.squeeze(np.searchsorted(self.z_grid, true_redshift, side='left', sorter=None))
         # do something faster with numpy??
         for i, j in zip(cells, true_bins):
-            self.single_hist[i, j] += 1
+            self.single_hist[i, min(j, self.config.nzbins)] += 1
 
     def _get_cells_and_dist(self, data: qp.Ensemble) -> TableLike:
         raise NotImplementedError()
@@ -123,7 +127,7 @@ class CellAssignmentPzInformer(PzInformer):
             first = False
 
         self._finalize_run()
-
+    
 
 class PZModeCellAssignmentPzInformer(CellAssignmentPzInformer):
     """Stage that assigns object to cells on mode of p(z) estimate
@@ -173,12 +177,13 @@ class CellAssignmentPzEstimator(PzEstimator):
         self, start: int, end: int, data: qp.Ensemble, first: bool
     ) -> None:
 
-        z_grid=self.model['z_grid']
-        cell_grid=self.model['cell_grid']
-        hist=self.model['hist']
+        z_grid=self.model.data['z_grid']
+        cell_grid=self.model.data['cell_grid']
+        hist=self.model.data['hist']
 
         cells = self._get_cells(data, cell_grid)
-        recalib_vals = hist[cells]
+        recalib_vals = hist[cells][:,:-1]
+        overflow = hist[cells][:,-1]
 
         qp_d = qp.Ensemble(
             qp.hist,
@@ -188,6 +193,7 @@ class CellAssignmentPzEstimator(PzEstimator):
             dict(
                 cells=cells,
                 zmedian=np.median(recalib_vals, axis=1),
+                overflow=overflow,
             )
         )
         self._do_chunk_output(qp_d, start, end, first)

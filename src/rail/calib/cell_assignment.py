@@ -5,6 +5,7 @@ import qp
 from ceci.config import StageParameter as Param
 from rail.core.stage import RailStage
 from rail.core.data import DataHandle, TableLike, QPHandle, Hdf5Handle
+from rail.core.common_params import SHARED_PARAMS
 from .cell_assignment_funcs import get_mode_cells, get_max_p_integral_cells
 
 
@@ -15,6 +16,7 @@ class PZCellAssigner(RailStage):
     name = "PZCellAssignmentBase"
     config_options = RailStage.config_options.copy()
     config_options.update(
+        chunk_size=SHARED_PARAMS,
         zmin=Param(float, 0.0, msg="Minimum redshift of the sample"),
         zmax=Param(float, 3.0, msg="Maximum redshift of the sample"),
         ncells=Param(int, 300, msg="Number of cells"),
@@ -28,6 +30,15 @@ class PZCellAssigner(RailStage):
         self.cell_grid: np.ndarray | None = None
         self._output_handle: DataHandle | None = None
 
+    def __call__(self, pz_estimate: qp.Ensemble) -> None:
+        self.set_data("pz_estimate", pz_estimate)
+        self.validate()
+        self.run()
+        self.finalize()
+        results = self.get_handle("assignment")
+        results.read(force=True)
+        return results
+        
     def run(self) -> None:
         self.cell_grid = np.linspace(
             self.config.zmin, self.config.zmax, self.config.ncells + 1
