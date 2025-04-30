@@ -16,7 +16,10 @@ classifiers = [
 ]
 dynamic = ["version"]
 
-dependencies = []
+dependencies = [
+    "pz-rail-base>=1.1.5",
+    "qp-prob[full]",
+]
 
 # On a mac, install optional dependencies with `pip install '.[dev]'` (include the single quotes)
 [project.optional-dependencies]
