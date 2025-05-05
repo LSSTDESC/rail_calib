@@ -24,7 +24,7 @@ def test_assignment(get_data: int, name: str, assign_class: type[RailStage]) -> 
 
     pzdata = DS.read_file("pzdata", QPHandle, path=pzdata_path)
     
-    assigner = PZModeCellAssigner.make_stage(name=f"assign_{name}")
+    assigner = assign_class.make_stage(name=f"assign_{name}")
 
     assignment = assigner(pzdata)
 
