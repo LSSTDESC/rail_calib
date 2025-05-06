@@ -18,7 +18,9 @@ dynamic = ["version"]
 
 dependencies = [
     "pz-rail-base>=1.1.6",
+    "ceci>=2.1",
     "qp-prob[full]",
+    "numpy",
 ]
 
 # On a mac, install optional dependencies with `pip install '.[dev]'` (include the single quotes)
