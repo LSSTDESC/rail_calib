@@ -218,7 +218,7 @@ class PZMaxCellPCellAssignmentPzEstimator(CellAssignmentPzEstimator):
     the highest integrated p(z)
     """
 
-    name = "PZMaxCellPCellAssignmentPzEsimator"
+    name = "PZMaxCellPCellAssignmentPzEstimator"
     config_options = CellAssignmentPzEstimator.config_options.copy()
 
     def _get_cells(self, data: qp.Ensemble, cell_grid: np.ndarray) -> np.ndarray:
