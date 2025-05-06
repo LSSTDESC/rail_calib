@@ -1,6 +1,6 @@
 [project]
 name = "pz-rail-calib"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {file = "LICENSE"}
 readme = "README.md"
 authors = [
@@ -17,7 +17,7 @@ classifiers = [
 dynamic = ["version"]
 
 dependencies = [
-    "pz-rail-base>=1.1.5",
+    "pz-rail-base>=1.1.6",
     "qp-prob[full]",
 ]
 
