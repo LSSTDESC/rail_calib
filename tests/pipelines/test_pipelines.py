@@ -10,6 +10,8 @@ import pytest
     [
         'rail.pipelines.calib.estimate_recalib.EstimateRecalibPipeline',
         'rail.pipelines.calib.inform_recalib.InformRecalibPipeline',
+        'rail.pipelines.calib.somlike_recalib.SomlikeRecalibPipeline',
+        'rail.pipelines.calib.inform_somlike.InformSomlikePipeline',
     ]
 )
 def test_build_and_read_pipeline(pipeline_class):
