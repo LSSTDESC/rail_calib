@@ -33,10 +33,8 @@ class SomlikeRecalibPipeline(RailPipeline):
 
     def __init__(
         self,
-        wide_estimator: dict = DEFAULT_PZ_ALGORITHM,
-        deep_estimator: dict = DEFAULT_PZ_ALGORITHM,
-        wide_assignment: dict = ASSIGN_ALGORITHMS['pz_mode'],
-        deep_assignment: dict = ASSIGN_ALGORITHMS['pz_mode'],
+        estimator: dict = DEFAULT_PZ_ALGORITHM,
+        assignment: dict = ASSIGN_ALGORITHMS['pz_mode'],
         wide_catalog_tag: str = "SompzWideTestCatalogConfig",
         deep_catalog_tag: str = "SompzDeepTestCatalogConfig",
         catalog_module: str = "rail.sompz.utils",
@@ -53,31 +51,29 @@ class SomlikeRecalibPipeline(RailPipeline):
             deep_catalog_tag, catalog_module
         )
 
-        deep_estimator_class = PipelineStage.get_stage(deep_estimator['Estimate'], deep_estimator['Module'])
-        deep_assignment_class = PipelineStage.get_stage(deep_assignment['Assign'], deep_assignment['Module'])
-        wide_estimator_class = PipelineStage.get_stage(wide_estimator['Estimate'], wide_estimator['Module'])
-        wide_assignment_class = PipelineStage.get_stage(wide_assignment['Assign'], wide_assignment['Module'])
+        estimator_class = PipelineStage.get_stage(estimator['Estimate'], estimator['Module'])
+        assignment_class = PipelineStage.get_stage(assignment['Assign'], assignment['Module'])
         
         # Do the deep model assignment stuff here
         CatalogConfigBase.apply(deep_catalog_class.tag)
         
         # 1. Find the best cell mapping for all of the deep/balrog galaxies into the deep SOM
-        self.pz_deepdeep_estimator = deep_estimator_class.build(
+        self.pz_deepdeep_estimator = estimator_class.build(
             aliases=dict(model="deep_model", input="input_deep_data"),
         )
         
-        self.deepdeep_assigment = deep_assignment_class.build(
+        self.deepdeep_assigment = assignment_class.build(
             connections=dict(
                 pz_estimate=self.pz_deepdeep_estimator.io.output
             ),
         )        
         
         # 3. Find the best cell mapping for all of the spectrscopic galaxies into the deep SOM
-        self.pz_deepspec_estimator = deep_estimator_class.build(
+        self.pz_deepspec_estimator = estimator_class.build(
             aliases=dict(model="deep_model", input="input_spec_data"),
         )
 
-        self.deepspec_assigment = deep_assignment_class.build(
+        self.deepspec_assigment = assignment_class.build(
             connections=dict(
                 pz_estimate=self.pz_deepspec_estimator.io.output
             ),            
@@ -87,33 +83,33 @@ class SomlikeRecalibPipeline(RailPipeline):
         CatalogConfigBase.apply(wide_catalog_class.tag)
         
         # 2. Find the best cell mapping for all of the deep/balrog galaxies into the wide SOM
-        self.pz_deepwide_estimator = wide_estimator_class.build(
+        self.pz_deepwide_estimator = estimator_class.build(
             aliases=dict(model="wide_model", input="input_deep_data"),
         )
 
-        self.deepwide_assigment = wide_assignment_class.build(
+        self.deepwide_assigment = assignment_class.build(
             connections=dict(
                 pz_estimate=self.pz_deepwide_estimator.io.output
             ),
         )
 
         # 6. Find the best cell mapping for all of the wide-field galaxies into the wide SOM
-        self.pz_widewide_estimator = wide_estimator_class.build(
+        self.pz_widewide_estimator = estimator_class.build(
             aliases=dict(model="wide_model", input="input_wide_data"),
         )
 
-        self.widewide_assigment = wide_assignment_class.build(
+        self.widewide_assigment = assignment_class.build(
             connections=dict(
                 pz_estimate=self.pz_widewide_estimator.io.output
             ),                        
         )
 
         # 8. Find the best cell mapping for all of the spectroscopic galaxies into the wide SOM
-        self.pz_widespec_estimator = wide_estimator_class.build(
+        self.pz_widespec_estimator = estimator_class.build(
             aliases=dict(model="wide_model", input="input_spec_data"),
         )
 
-        self.widespec_assigment = wide_assignment_class.build(
+        self.widespec_assigment = assignment_class.build(
             connections=dict(
                 pz_estimate=self.pz_widespec_estimator.io.output
             ),                                    
