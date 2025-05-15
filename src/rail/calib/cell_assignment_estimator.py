@@ -190,6 +190,7 @@ class CellAssignmentPzEstimator(PzEstimator):
             hist=self.model.data['hist']
 
         cells = self._get_cells(data, cell_grid)
+        cells = np.min(cells, len(cell_grid))
         recalib_vals = hist[cells][:,:-1]
         overflow = hist[cells][:,-1]
 
