@@ -177,9 +177,14 @@ class CellAssignmentPzEstimator(PzEstimator):
         self, start: int, end: int, data: qp.Ensemble, first: bool
     ) -> None:
 
-        z_grid=self.model.data['z_grid']
-        cell_grid=self.model.data['cell_grid']
-        hist=self.model.data['hist']
+        if isinstance(self.model, dict):
+            z_grid=self.model['z_grid']
+            cell_grid=self.model['cell_grid']
+            hist=self.model['hist']
+        else:
+            z_grid=self.model.data['z_grid']
+            cell_grid=self.model.data['cell_grid']
+            hist=self.model.data['hist']
 
         cells = self._get_cells(data, cell_grid)
         recalib_vals = hist[cells][:,:-1]
