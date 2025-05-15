@@ -26,8 +26,6 @@ zbins_dz_tomo = 0.025
 
 class SomlikeRecalibPipeline(RailPipeline):
     default_input_dict = {
-        "wide_model": "dummy.in",
-        "deep_model": "dummy.in",
         "input_spec_data": "dummy.in",
         "input_deep_data": "dummy.in",
         "input_wide_data": "dummy.in",
@@ -65,8 +63,8 @@ class SomlikeRecalibPipeline(RailPipeline):
 
             CatalogConfigBase.apply(deep_catalog_class.tag)
 
-            self.default_input_dict[f"model_{algo_}_deep"] = os.path.join(models_dir, f"model_pz_informer_{algo_}_deep.pickle")
-            self.default_input_dict[f"model_{algo_}_wide"] = os.path.join(models_dir, f"model_pz_informer_{algo_}_deep.pickle")
+            self.default_input_dict[f"model_{algo_}_deep"] = os.path.join(models_dir, f"model_pz_informer_{algo_}_deep.pkl")
+            self.default_input_dict[f"model_{algo_}_wide"] = os.path.join(models_dir, f"model_pz_informer_{algo_}_wide.pkl")
             
             # 1.A estimate pz in the deep field, using the deep model
             pz_deepdeep_estimator = estimator_class.make_stage(
