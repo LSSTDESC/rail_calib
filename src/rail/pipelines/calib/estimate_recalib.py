@@ -30,12 +30,18 @@ class EstimateRecalibPipeline(RailPipeline):
 
         for algo_ in algorithms.keys():
 
+            input_path = f"output_estimate_{algo_}.hdf5"
+            self.default_input_dict[f"input_{algo_}"] = os.path.join(models_dir, input_path)
+            
             for key, val in recalib_algos.items():
 
                 the_class = ceci.PipelineStage.get_stage(val['Estimate'], val['Module'])
                 the_estimator = the_class.make_and_connect(
                     name=f'estimate_{algo_}_{key}',
-                    aliases=dict(model=f"model_{algo_}_{key}"),
+                    aliases=dict(
+                        model=f"model_{algo_}_{key}",
+                        input=f"input_{algo_}",
+                    ),
                     hdf5_groupname='',
                 )
                 model_path = f'model_inform_{algo_}_{key}.pkl'
