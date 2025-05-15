@@ -20,6 +20,7 @@ def get_mode_cells(data: qp.Ensemble, cell_grid: np.ndarray) -> np.ndarray:
 
     point_estimates = data.ancil['zmode']
     cells = np.squeeze(np.searchsorted(cell_grid, point_estimates, side='left', sorter=None))
+    cells = np.where(cells==len(cell_grid), cells, len(cell_grid)-1)
     return cells
 
 
