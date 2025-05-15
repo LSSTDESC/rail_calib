@@ -38,7 +38,6 @@ class InformRecalibPipeline(RailPipeline):
                     name=f'inform_{algo_}_{key}',
                     aliases=dict(
                         input=f'input_{algo_}',
-                        truth='truth',
                     ),
                     hdf5_groupname='',
                 )
