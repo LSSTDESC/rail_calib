@@ -94,7 +94,10 @@ class CellAssignmentPzInformer(PzInformer):
         true_bins = np.squeeze(np.searchsorted(self.z_grid, true_redshift, side='left', sorter=None))
         # do something faster with numpy??
         for i, j in zip(cells, true_bins):
-            self.single_hist[i, min(j, self.config.nzbins)] += 1
+            try:
+                self.single_hist[i, min(j, self.config.nzbins)] += 1
+            except:
+                pass
 
     def _get_cells_and_dist(self, data: qp.Ensemble) -> TableLike:
         raise NotImplementedError()
