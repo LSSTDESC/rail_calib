@@ -29,7 +29,7 @@ class PZCellAssigner(RailStage):
         super().__init__(args, **kwargs)
         self.cell_grid: np.ndarray | None = None
         self._output_handle: DataHandle | None = None
-        self.som_size: int = -1
+        self.som_size: np.ndarray | None = None
 
     def __call__(self, pz_estimate: qp.Ensemble) -> None:
         self.set_data("pz_estimate", pz_estimate)
@@ -45,7 +45,7 @@ class PZCellAssigner(RailStage):
             self.config.zmin, self.config.zmax, self.config.ncells + 1
         )        
         assert self.cell_grid is not None
-        self.som_size = self.config.ncells
+        self.som_size = np.array([self.config.ncells])
         first = True
         self._initialize_run()
         self._output_handle = None
