@@ -7,7 +7,7 @@ ASSIGN_ALGORITHMS = dict(
         
     ),
     pz_max_cell_p=dict(
-        Assign='PZModeCellAssigner',
+        Assign='PZMaxCellPCellAssigner',
         Module='rail.calib.cell_assignment',
     ),
 )
@@ -28,7 +28,7 @@ RECALIB_ALGORITHMS = dict(
 
 
 DEFAULT_PZ_ALGORITHM = dict(
-    Inform='KNearNeighInformer',
-    Estimate='KNearNeighEstimator',
-    Module='rail.estimation.algos.k_nearneigh',
+    Inform='TrainZInformer',
+    Estimate='TrainZEstimator',
+    Module='rail.estimation.algos.train_z',
 )

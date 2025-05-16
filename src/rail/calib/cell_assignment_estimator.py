@@ -94,7 +94,10 @@ class CellAssignmentPzInformer(PzInformer):
         true_bins = np.squeeze(np.searchsorted(self.z_grid, true_redshift, side='left', sorter=None))
         # do something faster with numpy??
         for i, j in zip(cells, true_bins):
-            self.single_hist[i, min(j, self.config.nzbins)] += 1
+            try:
+                self.single_hist[i, min(j, self.config.nzbins)] += 1
+            except:
+                pass
 
     def _get_cells_and_dist(self, data: qp.Ensemble) -> TableLike:
         raise NotImplementedError()
@@ -177,9 +180,14 @@ class CellAssignmentPzEstimator(PzEstimator):
         self, start: int, end: int, data: qp.Ensemble, first: bool
     ) -> None:
 
-        z_grid=self.model.data['z_grid']
-        cell_grid=self.model.data['cell_grid']
-        hist=self.model.data['hist']
+        if isinstance(self.model, dict):
+            z_grid=self.model['z_grid']
+            cell_grid=self.model['cell_grid']
+            hist=self.model['hist']
+        else:
+            z_grid=self.model.data['z_grid']
+            cell_grid=self.model.data['cell_grid']
+            hist=self.model.data['hist']
 
         cells = self._get_cells(data, cell_grid)
         recalib_vals = hist[cells][:,:-1]

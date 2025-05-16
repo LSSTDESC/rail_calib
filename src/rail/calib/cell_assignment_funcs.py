@@ -17,9 +17,16 @@ def get_mode_cells(data: qp.Ensemble, cell_grid: np.ndarray) -> np.ndarray:
     -------
     cell assignments
     """
-
-    point_estimates = data.ancil['zmode']
+    try:
+        point_estimates = data.ancil['zmode']
+    except:
+        tight_grid = np.linspace(cell_grid[0], cell_grid[1], 2*len(cell_grid) - 1)
+        tight_grid = 0.5 * (tight_grid[0:-1] + tight_grid[1:])
+        pdfs = data.pdf(tight_grid)
+        point_estimates = tight_grid[np.argmax(pdfs, axis=1)]
     cells = np.squeeze(np.searchsorted(cell_grid, point_estimates, side='left', sorter=None))
+    n_cells = len(cell_grid) - 1
+    cells = np.where(cells==n_cells, n_cells-1, cells)
     return cells
 
 

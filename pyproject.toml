@@ -19,7 +19,6 @@ dynamic = ["version"]
 dependencies = [
     "pz-rail-base>=1.1.6",
     "pz-rail-sompz",
-    "pz-rail-sklearn",
     "ceci>=2.1",
     "qp-prob[full]",
     "numpy",
