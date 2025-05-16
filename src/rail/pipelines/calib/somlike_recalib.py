@@ -213,8 +213,8 @@ class SomlikeRecalibPipeline(RailPipeline):
                     zbins_min=zbins_min_tomo,
                     zbins_max=zbins_max_tomo,
                     zbins_dz=zbins_dz_tomo,
-                    wide_som_size=625,
-                    deep_som_size=1024,
+                    wide_som_size=300,
+                    deep_som_size=300,
                     redshift_col="redshift",
                     aliases=dict(
                         spec_data="input_spec_data",
