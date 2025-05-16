@@ -29,6 +29,7 @@ class PZCellAssigner(RailStage):
         super().__init__(args, **kwargs)
         self.cell_grid: np.ndarray | None = None
         self._output_handle: DataHandle | None = None
+        self.som_size: int = -1
 
     def __call__(self, pz_estimate: qp.Ensemble) -> None:
         self.set_data("pz_estimate", pz_estimate)
@@ -42,8 +43,9 @@ class PZCellAssigner(RailStage):
     def run(self) -> None:
         self.cell_grid = np.linspace(
             self.config.zmin, self.config.zmax, self.config.ncells + 1
-        )
+        )        
         assert self.cell_grid is not None
+        self.som_size = self.config.ncells
         first = True
         self._initialize_run()
         self._output_handle = None
@@ -59,7 +61,8 @@ class PZCellAssigner(RailStage):
 
     def _finalize_run(self) -> None:
         assert self._output_handle is not None
-        self._output_handle.finalize_write()
+        tmpdict = dict(som_size=self.som_size)
+        self._output_handle.finalize_write(**tmpdict)
 
     def _process_chunk(
         self, start: int, end: int, data: qp.Ensemble, first: bool
