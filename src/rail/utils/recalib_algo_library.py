@@ -7,7 +7,7 @@ ASSIGN_ALGORITHMS = dict(
         
     ),
     pz_max_cell_p=dict(
-        Assign='PZModeCellAssigner',
+        Assign='PZMaxCellPCellAssigner',
         Module='rail.calib.cell_assignment',
     ),
 )
