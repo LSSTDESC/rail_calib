@@ -22,7 +22,7 @@ def get_mode_cells(data: qp.Ensemble, cell_grid: np.ndarray) -> np.ndarray:
     except:
         tight_grid = np.linspace(cell_grid[0], cell_grid[1], 2*len(cell_grid) - 1)
         tight_grid = 0.5 * (tight_grid[0:-1] + tight_grid[1:])
-        pdfs = data.pdfs(tight_grid)
+        pdfs = data.pdf(tight_grid)
         point_estimates = tight_grid[np.argmax(pdfs, axis=1)]
     cells = np.squeeze(np.searchsorted(cell_grid, point_estimates, side='left', sorter=None))
     n_cells = len(cell_grid) - 1
