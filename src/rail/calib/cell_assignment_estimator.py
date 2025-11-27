@@ -23,6 +23,7 @@ class CellAssignmentPzInformer(PzInformer):
     """
 
     name = "CellAssignmentPzInformer"
+    entrypoint_function = "inform"  # the user-facing science function for this class
     config_options = PzInformer.config_options.copy()
     config_options.update(
         chunk_size=SHARED_PARAMS,
@@ -137,6 +138,7 @@ class PZModeCellAssignmentPzInformer(CellAssignmentPzInformer):
     """Stage that assigns object to cells on mode of p(z) estimate"""
 
     name = "PZModeCellAssignmentPzInformer"
+    entrypoint_function = "inform"  # the user-facing science function for this class
     config_options = CellAssignmentPzInformer.config_options.copy()
 
     def _get_cells_and_dist(self, data: qp.Ensemble) -> TableLike:
@@ -155,6 +157,7 @@ class PZMaxCellPCellAssignmentPzInformer(CellAssignmentPzInformer):
     """
 
     name = "PZMaxCellPCellAssignmentPzInformer"
+    entrypoint_function = "inform"  # the user-facing science function for this class
     config_options = CellAssignmentPzInformer.config_options.copy()
 
     def _get_cells_and_dist(self, data: qp.Ensemble) -> TableLike:
@@ -174,6 +177,7 @@ class CellAssignmentPzEstimator(PzEstimator):
     """
 
     name = "CellAssignmentPzEstimator"
+    entrypoint_function = "estimate"  # the user-facing science function for this class
     config_options = PzEstimator.config_options.copy()
 
     def _process_chunk(
@@ -214,6 +218,7 @@ class PZModeCellAssignmentPzEstimator(CellAssignmentPzEstimator):
     """Stage that assigns object to cells on mode of p(z) estimate"""
 
     name = "PZModeCellAssignmentPzEstimator"
+    entrypoint_function = "estimate"  # the user-facing science function for this class
     config_options = CellAssignmentPzEstimator.config_options.copy()
 
     def _get_cells(self, data: qp.Ensemble, cell_grid: np.ndarray) -> np.ndarray:
@@ -226,6 +231,7 @@ class PZMaxCellPCellAssignmentPzEstimator(CellAssignmentPzEstimator):
     """
 
     name = "PZMaxCellPCellAssignmentPzEstimator"
+    entrypoint_function = "estimate"  # the user-facing science function for this class
     config_options = CellAssignmentPzEstimator.config_options.copy()
 
     def _get_cells(self, data: qp.Ensemble, cell_grid: np.ndarray) -> np.ndarray:

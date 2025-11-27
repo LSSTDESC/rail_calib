@@ -14,6 +14,7 @@ class PZCellAssigner(RailStage):
     """Base class for stage that assigns object to cells based on p(z) estimate"""
 
     name = "PZCellAssignmentBase"
+    entrypoint_function = "__call__"  # the user-facing science function for this class
     config_options = RailStage.config_options.copy()
     config_options.update(
         chunk_size=SHARED_PARAMS,
@@ -95,6 +96,7 @@ class PZModeCellAssigner(PZCellAssigner):
     """Stage that assigns object to cells on mode of p(z) estimate"""
 
     name = "PZModeCellAssigner"
+    entrypoint_function = "__call__"  # the user-facing science function for this class
     config_options = PZCellAssigner.config_options.copy()
 
     def _get_cells_and_dist(self, data: qp.Ensemble) -> TableLike:
@@ -113,6 +115,7 @@ class PZMaxCellPCellAssigner(PZCellAssigner):
     """
 
     name = "PZMaxCellPCellAssigner"
+    entrypoint_function = "__call__"  # the user-facing science function for this class
     config_options = PZCellAssigner.config_options.copy()
 
     def _get_cells_and_dist(self, data: qp.Ensemble) -> TableLike:
