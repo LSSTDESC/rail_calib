@@ -1,17 +1,17 @@
 from typing import Any
+
 import numpy as np
 import qp
-
 from ceci.config import StageParameter as Param
-from rail.core.stage import RailStage
-from rail.core.data import DataHandle, TableLike, QPHandle, Hdf5Handle
 from rail.core.common_params import SHARED_PARAMS
-from .cell_assignment_funcs import get_mode_cells, get_max_p_integral_cells
+from rail.core.data import DataHandle, Hdf5Handle, QPHandle, TableLike
+from rail.core.stage import RailStage
+
+from .cell_assignment_funcs import get_max_p_integral_cells, get_mode_cells
 
 
 class PZCellAssigner(RailStage):
-    """Base class for stage that assigns object to cells based on p(z) estimate
-    """
+    """Base class for stage that assigns object to cells based on p(z) estimate"""
 
     name = "PZCellAssignmentBase"
     config_options = RailStage.config_options.copy()
@@ -22,7 +22,7 @@ class PZCellAssigner(RailStage):
         ncells=Param(int, 300, msg="Number of cells"),
     )
     inputs = [("pz_estimate", QPHandle)]
-    outputs = [('assignment', Hdf5Handle)]
+    outputs = [("assignment", Hdf5Handle)]
 
     def __init__(self, args: Any, **kwargs: Any) -> None:
         """Initialize Stage"""
@@ -39,11 +39,11 @@ class PZCellAssigner(RailStage):
         results = self.get_handle("assignment")
         results.read(force=True)
         return results
-        
+
     def run(self) -> None:
         self.cell_grid = np.linspace(
             self.config.zmin, self.config.zmax, self.config.ncells + 1
-        )        
+        )
         assert self.cell_grid is not None
         self.som_size = np.array([self.config.ncells])
         first = True
@@ -92,8 +92,7 @@ class PZCellAssigner(RailStage):
 
 
 class PZModeCellAssigner(PZCellAssigner):
-    """Stage that assigns object to cells on mode of p(z) estimate
-    """
+    """Stage that assigns object to cells on mode of p(z) estimate"""
 
     name = "PZModeCellAssigner"
     config_options = PZCellAssigner.config_options.copy()

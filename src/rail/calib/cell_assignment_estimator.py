@@ -2,20 +2,19 @@
 A PZEstimator that uses a deeper training sample to recalibrate
 a p(z) estimate
 """
+
 from typing import Any
 
 import numpy as np
-
 import qp
-
 from ceci.config import StageParameter as Param
-
-from rail.core.model import Model
-from rail.core.data import DataHandle, TableLike, Hdf5Handle, ModelHandle
 from rail.core.common_params import SHARED_PARAMS
-from rail.estimation.informer import PzInformer
+from rail.core.data import DataHandle, Hdf5Handle, ModelHandle, TableLike
+from rail.core.model import Model
 from rail.estimation.estimator import PzEstimator
-from .cell_assignment_funcs import get_mode_cells, get_max_p_integral_cells
+from rail.estimation.informer import PzInformer
+
+from .cell_assignment_funcs import get_max_p_integral_cells, get_mode_cells
 
 
 class CellAssignmentPzInformer(PzInformer):
@@ -35,14 +34,14 @@ class CellAssignmentPzInformer(PzInformer):
         ncells=Param(int, 50, msg="Number of cells"),
     )
 
-    outputs = [("model", ModelHandle), ('assignment', Hdf5Handle)]
+    outputs = [("model", ModelHandle), ("assignment", Hdf5Handle)]
 
     def __init__(self, args: Any, **kwargs: Any) -> None:
         super().__init__(args, **kwargs)
-        self.cell_grid: np.ndarray | None=None
-        self.z_grid: np.ndarray | None=None
-        self.single_hist: np.ndarray | None=None
-        self._assignment_handle: DataHandle | None=None
+        self.cell_grid: np.ndarray | None = None
+        self.z_grid: np.ndarray | None = None
+        self.single_hist: np.ndarray | None = None
+        self._assignment_handle: DataHandle | None = None
 
     def _initialize_run(self) -> None:
         self._assignment_handle = None
@@ -52,7 +51,7 @@ class CellAssignmentPzInformer(PzInformer):
         self.z_grid = np.linspace(
             self.config.zmin, self.config.zmax, self.config.nzbins + 1
         )
-        self.single_hist = np.zeros((self.config.ncells+1, self.config.nzbins+1))
+        self.single_hist = np.zeros((self.config.ncells + 1, self.config.nzbins + 1))
 
     def _finalize_run(self) -> None:
         assert self._assignment_handle is not None
@@ -87,11 +86,13 @@ class CellAssignmentPzInformer(PzInformer):
     ) -> None:
         assignment_data = self._get_cells_and_dist(data)
         self._do_chunk_output(assignment_data, start, end, first)
-        cells = assignment_data['cells']
+        cells = assignment_data["cells"]
         assert self.z_grid is not None
         assert self.cell_grid is not None
         assert self.single_hist is not None
-        true_bins = np.squeeze(np.searchsorted(self.z_grid, true_redshift, side='left', sorter=None))
+        true_bins = np.squeeze(
+            np.searchsorted(self.z_grid, true_redshift, side="left", sorter=None)
+        )
         # do something faster with numpy??
         for i, j in zip(cells, true_bins):
             try:
@@ -130,11 +131,10 @@ class CellAssignmentPzInformer(PzInformer):
             first = False
 
         self._finalize_run()
-    
+
 
 class PZModeCellAssignmentPzInformer(CellAssignmentPzInformer):
-    """Stage that assigns object to cells on mode of p(z) estimate
-    """
+    """Stage that assigns object to cells on mode of p(z) estimate"""
 
     name = "PZModeCellAssignmentPzInformer"
     config_options = CellAssignmentPzInformer.config_options.copy()
@@ -181,17 +181,17 @@ class CellAssignmentPzEstimator(PzEstimator):
     ) -> None:
 
         if isinstance(self.model, dict):
-            z_grid=self.model['z_grid']
-            cell_grid=self.model['cell_grid']
-            hist=self.model['hist']
+            z_grid = self.model["z_grid"]
+            cell_grid = self.model["cell_grid"]
+            hist = self.model["hist"]
         else:
-            z_grid=self.model.data['z_grid']
-            cell_grid=self.model.data['cell_grid']
-            hist=self.model.data['hist']
+            z_grid = self.model.data["z_grid"]
+            cell_grid = self.model.data["cell_grid"]
+            hist = self.model.data["hist"]
 
         cells = self._get_cells(data, cell_grid)
-        recalib_vals = hist[cells][:,:-1]
-        overflow = hist[cells][:,-1]
+        recalib_vals = hist[cells][:, :-1]
+        overflow = hist[cells][:, -1]
 
         qp_d = qp.Ensemble(
             qp.hist,
@@ -211,8 +211,7 @@ class CellAssignmentPzEstimator(PzEstimator):
 
 
 class PZModeCellAssignmentPzEstimator(CellAssignmentPzEstimator):
-    """Stage that assigns object to cells on mode of p(z) estimate
-    """
+    """Stage that assigns object to cells on mode of p(z) estimate"""
 
     name = "PZModeCellAssignmentPzEstimator"
     config_options = CellAssignmentPzEstimator.config_options.copy()
