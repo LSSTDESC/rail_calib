@@ -1,10 +1,10 @@
 [project]
 name = "pz-rail-calib"
 requires-python = ">=3.10"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 readme = "README.md"
 authors = [
-    { name = "LSST Dark Energy Science Collaboration (DESC)", email = "lsst-desc-rail-admin@slac.stanford.edu" }
+    { name = "LSST Dark Energy Science Collaboration (DESC)", email = "lsst-desc-rail-admin@slac.stanford.edu" },
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -17,7 +17,7 @@ classifiers = [
 dynamic = ["version"]
 
 dependencies = [
-    "pz-rail-base>=1.1.6",
+    "pz-rail-base>=2.0.0",
     "pz-rail-sompz",
     "ceci>=2.1",
     "qp-prob[full]",
@@ -30,12 +30,12 @@ dev = [
     "pytest",
     "pytest-cov", # Used to report total code coverage
     "pre-commit", # Used to run checks before finalizing a git commit
-    "pylint", # Used for static linting of files
+    "pylint",     # Used for static linting of files
 ]
 
 [build-system]
 requires = [
-    "setuptools>=62", # Used to build and package the Python project
+    "setuptools>=62",      # Used to build and package the Python project
     "setuptools_scm>=6.2", # Gets release version from git. Makes it available programmatically
 ]
 build-backend = "setuptools.build_meta"
@@ -44,13 +44,8 @@ build-backend = "setuptools.build_meta"
 write_to = "src/rail/calib/_version.py"
 
 [tool.pytest.ini_options]
-testpaths = [
-    "tests",
-]
-addopts = [
-    "--cov=rail",
-    "--cov-report=html"
-]
+testpaths = ["tests"]
+addopts = ["--cov=rail", "--cov-report=html"]
 
 [tool.pylint]
 disable = [
@@ -71,7 +66,6 @@ max-branches = 25
 max-public-methods = 50
 
 
-
 [tool.mypy]
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
@@ -86,13 +80,7 @@ warn_unused_ignores = true
 
 
 [tool.coverage.run]
-omit = [
-     "*/_version.py",
-     ]
+omit = ["*/_version.py"]
 
 [tool.coverage.report]
-exclude_also = [
-    "raise NotImplementedError",
-    "__repr__",
-    "TYPE_CHECKING",
-]
+exclude_also = ["raise NotImplementedError", "__repr__", "TYPE_CHECKING"]
