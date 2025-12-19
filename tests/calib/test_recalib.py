@@ -18,7 +18,9 @@ pzdata_path = "tests/output_estimate_knn.hdf5"
 @pytest.mark.parametrize(
     "name,inform_class,estimate_class",
     [
-        ("pz_mode", PZModeCellAssignmentPzInformer, PZModeCellAssignmentPzEstimator),
+        ("pz_mode", PZModeCellAssignmentPzInformer,
+          PZModeCellAssignmentPzEstimator
+          ),
         (
             "max_p",
             PZMaxCellPCellAssignmentPzInformer,
@@ -35,11 +37,8 @@ def test_recalib(
 
     assert get_data == 0
 
-    DS = RailStage.data_store
-    DS.__class__.allow_overwrite = True
-
-    testdata = DS.read_file("testdata", TableHandle, path=testdata_path)
-    pzdata = DS.read_file("pzdata", QPHandle, path=pzdata_path)
+    testdata = TableHandle("testdata",path=testdata_path)
+    pzdata = QPHandle("pzdata",path=pzdata_path)
 
     informer = inform_class.make_stage(
         name=f"inform_{name}",
