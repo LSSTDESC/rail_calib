@@ -1,17 +1,19 @@
 import os
 
 from ceci import PipelineStage
+from rail.core.stage import RailPipeline, RailStage
+from rail.estimation.algos.sompz import (
+    SOMPZEstimatorDeep,
+    SOMPZEstimatorWide,
+    SOMPZnz,
+    SOMPZPc_chat,
+    SOMPZPzc,
+    SOMPZPzchat,
+    SOMPZTomobin,
+)
 
 from rail.utils.catalog_utils import CatalogConfigBase
-from rail.core.stage import RailStage, RailPipeline
-
-from rail.estimation.algos.sompz import SOMPZEstimatorWide, SOMPZEstimatorDeep
-from rail.estimation.algos.sompz import SOMPZPzc, SOMPZPzchat, SOMPZPc_chat
-from rail.estimation.algos.sompz import SOMPZTomobin, SOMPZnz
-
 from rail.utils.recalib_algo_library import ASSIGN_ALGORITHMS, DEFAULT_PZ_ALGORITHM
-
-
 
 bin_edges_deep = [0.0, 0.5, 1.0, 2.0, 3.0]
 zbins_min_deep = 0.0
@@ -33,17 +35,15 @@ class SomlikeRecalibPipeline(RailPipeline):
 
     def __init__(
         self,
-        algorithms: dict|None=None,
-        assign_algos: dict|None=None,
-        models_dir: str=".",
+        algorithms: dict | None = None,
+        assign_algos: dict | None = None,
+        models_dir: str = ".",
         wide_catalog_tag: str = "SompzWideTestCatalogConfig",
         deep_catalog_tag: str = "SompzDeepTestCatalogConfig",
         catalog_module: str = "rail.sompz.utils",
     ):
         RailPipeline.__init__(self)
 
-        DS = RailStage.data_store
-        DS.__class__.allow_overwrite = True
 
         if algorithms is None:
             algorithms = dict(trainz=DEFAULT_PZ_ALGORITHM)
@@ -59,13 +59,19 @@ class SomlikeRecalibPipeline(RailPipeline):
         )
 
         for algo_, algo_info_ in algorithms.items():
-            estimator_class = PipelineStage.get_stage(algo_info_['Estimate'], algo_info_['Module'])
+            estimator_class = PipelineStage.get_stage(
+                algo_info_["Estimate"], algo_info_["Module"]
+            )
 
             CatalogConfigBase.apply(deep_catalog_class.tag)
 
-            self.default_input_dict[f"model_{algo_}_deep"] = os.path.join(models_dir, f"model_pz_informer_{algo_}_deep.pkl")
-            self.default_input_dict[f"model_{algo_}_wide"] = os.path.join(models_dir, f"model_pz_informer_{algo_}_wide.pkl")
-            
+            self.default_input_dict[f"model_{algo_}_deep"] = os.path.join(
+                models_dir, f"model_pz_informer_{algo_}_deep.pkl"
+            )
+            self.default_input_dict[f"model_{algo_}_wide"] = os.path.join(
+                models_dir, f"model_pz_informer_{algo_}_wide.pkl"
+            )
+
             # 1.A estimate pz in the deep field, using the deep model
             pz_deepdeep_estimator = estimator_class.make_stage(
                 name=f"pz_deepdeep_estimator_{algo_}",
@@ -79,7 +85,6 @@ class SomlikeRecalibPipeline(RailPipeline):
                 aliases=dict(model=f"model_{algo_}_deep", input="input_spec_data"),
             )
             self.add_stage(pz_deepspec_estimator)
-
 
             CatalogConfigBase.apply(wide_catalog_class.tag)
 
@@ -104,52 +109,43 @@ class SomlikeRecalibPipeline(RailPipeline):
             )
             self.add_stage(pz_widespec_estimator)
 
-
             for assign_name_, assign_info_ in assign_algos.items():
-                assignment_class = PipelineStage.get_stage(assign_info_['Assign'], assign_info_['Module'])
+                assignment_class = PipelineStage.get_stage(
+                    assign_info_["Assign"], assign_info_["Module"]
+                )
 
                 # 1.B Find the best cell mapping for all of the deep/balrog galaxies into the deep SOM
                 deepdeep_assigment = assignment_class.make_and_connect(
                     name=f"deepdeep_assigment_{algo_}_{assign_name_}",
-                    connections=dict(
-                        pz_estimate=pz_deepdeep_estimator.io.output
-                    ),
+                    connections=dict(pz_estimate=pz_deepdeep_estimator.io.output),
                 )
                 self.add_stage(deepdeep_assigment)
-                
+
                 # 3.B Find the best cell mapping for all of the spectrscopic galaxies into the deep SOM
                 deepspec_assigment = assignment_class.make_and_connect(
                     name=f"deepspec_assigment_{algo_}_{assign_name_}",
-                    connections=dict(
-                        pz_estimate=pz_deepspec_estimator.io.output
-                    ),
+                    connections=dict(pz_estimate=pz_deepspec_estimator.io.output),
                 )
                 self.add_stage(deepspec_assigment)
 
                 # 2.B Find the best cell mapping for all of the deep/balrog galaxies into the wide SOM
                 deepwide_assigment = assignment_class.make_and_connect(
                     name=f"deepwide_assigment_{algo_}_{assign_name_}",
-                    connections=dict(
-                        pz_estimate=pz_deepwide_estimator.io.output
-                    ),
+                    connections=dict(pz_estimate=pz_deepwide_estimator.io.output),
                 )
                 self.add_stage(deepwide_assigment)
 
                 # 6.B Find the best cell mapping for all of the wide-field galaxies into the wide SOM
                 widewide_assigment = assignment_class.make_and_connect(
                     name=f"widewide_assigment_{algo_}_{assign_name_}",
-                    connections=dict(
-                        pz_estimate=pz_widewide_estimator.io.output
-                    ),
+                    connections=dict(pz_estimate=pz_widewide_estimator.io.output),
                 )
                 self.add_stage(widewide_assigment)
 
                 # 8.B Find the best cell mapping for all of the spectroscopic galaxies into the wide SOM
                 widespec_assigment = assignment_class.make_and_connect(
                     name=f"widespec_assigment_{algo_}_{assign_name_}",
-                    connections=dict(
-                        pz_estimate=pz_widespec_estimator.io.output
-                    ),
+                    connections=dict(pz_estimate=pz_widespec_estimator.io.output),
                 )
                 self.add_stage(widespec_assigment)
 
@@ -180,7 +176,7 @@ class SomlikeRecalibPipeline(RailPipeline):
                     connections=dict(
                         cell_deep_balrog_data=deepdeep_assigment.io.assignment,
                         cell_wide_balrog_data=deepwide_assigment.io.assignment,
-                    )
+                    ),
                 )
                 self.add_stage(som_pcchat)
 
